@@ -6,7 +6,7 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 
 const dengueLegend = [
@@ -354,7 +354,7 @@ const DiseaseMapPage = () => {
   return (
     <div className="space-y-6 mx-10">
       <div className="flex justify-center">
-        <div className="space-y-1.5 text-center">
+        <div className="space-y-1.5 text-center flex flex-row gap-2">
           <p className="text-md font-medium text-foreground py-2">Select Disease</p>
           <Select value={selectedDisease} onValueChange={setSelectedDisease}>
             <SelectTrigger className="w-[240px]"><SelectValue /></SelectTrigger>

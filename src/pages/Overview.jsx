@@ -2,7 +2,7 @@ import { Thermometer, Droplets, CloudRain, Activity, Droplet, Bug, CalendarIcon,
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { useState, useMemo } from "react";
 import { diseaseProfiles, diseaseOptions, getTopDistricts } from "../assets/data/diseaseData.js";
 import { Button } from "@/components/ui/button"
@@ -332,6 +332,7 @@ const OverviewPage = () => {
                 <XAxis dataKey="week" tick={{ fontSize: 12 }} stroke="hsl(220,10%,46%)" />
                 <YAxis tick={{ fontSize: 12 }} stroke="hsl(220,10%,46%)" />
                 <Tooltip />
+                <Legend />
                 <Line type="monotone" dataKey="cases" stroke="hsl(220,60%,20%)" strokeWidth={2} dot={false} connectNulls={false} />
                 <Line type="monotone" dataKey="predicted" stroke="hsl(0,72%,51%)" strokeWidth={2} strokeDasharray="5 5" dot={false} />
                 <Line type="monotone" dataKey="upperCI" stroke="hsl(0,72%,51%)" strokeWidth={1} strokeDasharray="2 2" dot={false} />

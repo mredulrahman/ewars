@@ -1,6 +1,6 @@
 import { Calendar, Layers, DollarSign, ChartNoAxesColumnIncreasing, Info, Mail, Send, TrendingUp, TrendingDown } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { PieChart, Pie, Cell } from "recharts";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -74,16 +74,16 @@ const AlertPage = () => {
 
   const topDistrictPie = [...profile.districtData]
     .sort((a, b) => b.cases - a.cases)
-    .slice(0, 5);
-  const othersSum = profile.districtData.slice(5).reduce((s, d) => s + d.cases, 0);
+    .slice(0, 10);
+  // const othersSum = profile.districtData.slice(5).reduce((s, d) => s + d.cases, 0);
   const totalCasesThisWeek = profile.districtData.reduce((s, d) => s + d.cases, 0);
   const pieData = [
     ...topDistrictPie.map((d, i) => ({
       name: d.district,
       value: Math.round((d.cases / totalCasesThisWeek) * 100),
-      color: [`hsl(340,80%,60%)`, `hsl(30,85%,55%)`, `hsl(300,60%,55%)`, `hsl(170,60%,45%)`, `hsl(200,70%,50%)`][i],
+      color: [`hsl(340,80%,60%)`, `hsl(30,85%,55%)`, `hsl(300,60%,55%)`, `hsl(170,60%,45%)`, `hsl(200,70%,50%)`, `gray`, `red`, `green`, `blue`][i],
     })),
-    { name: "Others", value: Math.round((othersSum / totalCasesThisWeek) * 100), color: "hsl(260,50%,60%)" },
+    // { name: "Others", value: Math.round((othersSum / totalCasesThisWeek) * 100), color: "hsl(260,50%,60%)" },
   ];
 
   const weeklyData = profile.weeklyTrend.map((w) => ({
@@ -117,7 +117,7 @@ const AlertPage = () => {
           <p className="text-[#3C5DAA] inter-myfont1">Monitor disease alerts based on baseline thresholds</p>
         </div>
         <div className="flex flex-col items-end gap-2">
-          <span className="text-xs px-3 py-1 rounded-full border border-danger text-danger font-medium">
+          <span className="text-xs px-3 py-1 rounded-full border border-danger bg-blue-100 text-blue-900 font-medium">
             Latest Data: {profile.latestDataWeek}
           </span>
           <Button onClick={() => setShowEmail(true)} className="gap-2 bg-blue-600 text-white hover:bg-blue-700">
@@ -168,7 +168,7 @@ const AlertPage = () => {
             </div>
           </div>
           <p className="text-3xl font-bold text-foreground">{profile.currentWeekCases.toLocaleString()}</p>
-          <p className={`text-xs mt-1 ${parseFloat(weekChange) > 0 ? "text-danger" : "text-success"}`}>
+          <p className={`text-xs flex items-center gap-1 mt-1 ${parseFloat(weekChange) > 0 ? "text-danger" : "text-success"}`}>
             {parseFloat(weekChange) > 0 ? <TrendingUp className="w-4 h-4 text-danger" /> : <TrendingDown className="w-4 h-4 text-success" />} {weekChange}% vs last week
           </p>
           <hr className="my-2" />
@@ -243,6 +243,7 @@ const AlertPage = () => {
                 <XAxis dataKey="week" tick={{ fontSize: 10 }} stroke="hsl(220,10%,46%)" />
                 <YAxis tick={{ fontSize: 10 }} stroke="hsl(220,10%,46%)" />
                 <Tooltip />
+                <Legend />
                 <Line type="monotone" dataKey="threshold" stroke="hsl(220,10%,70%)" strokeDasharray="5 5" dot={false} />
                 <Line type="monotone" dataKey="cases" stroke="hsl(210,80%,52%)" strokeWidth={2} dot={false} />
               </LineChart>
@@ -268,7 +269,7 @@ const AlertPage = () => {
         <div className="lg:col-span-2 flex flex-row dashboard-section">
           <div className="w-full">
             <h3 className="text-lg font-semibold text-foreground">Cases by District</h3>
-            <p className="text-sm text-muted-foreground my-2">Top districts by case count</p>
+            <p className="text-sm text-muted-foreground my-2">Top 10 districts by case count</p>
             <ResponsiveContainer width="100%" height={280}>
               <PieChart>
                 <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label={({ name, value }) => `${name} ${value}%`}>
