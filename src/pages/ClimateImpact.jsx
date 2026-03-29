@@ -1,7 +1,7 @@
-import { Thermometer, Droplets, CloudRain, Activity } from "lucide-react";
+import { Thermometer, Droplets, CloudRain, Activity, LayoutGrid } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Slider } from "@/components/ui/slider";
 import { diseaseProfiles, diseaseOptions } from "../assets/data/diseaseData";
 
@@ -30,12 +30,56 @@ const weatherImpacts = [
 ];
 
 const ClimateImpactPage = () => {
+  const filteredDiseaseOptions = useMemo(() => {
+    const base = diseaseOptions.filter(o => o.value !== "malariaPF" && o.value !== "malariaPV");
+    return [...base, { value: "malaria", label: "Malaria" }];
+  }, []);
+
   const [yearRange, setYearRange] = useState([75]);
   const [activeFilter, setActiveFilter] = useState("all");
   const [selectedDisease, setSelectedDisease] = useState("dengue");
-  const [selectedDistrict, setSelectedDistrict] = useState("all");
+  const [selectedDistrict, setSelectedDistrict] = useState("Dhaka");
 
-  const profile = diseaseProfiles[selectedDisease];
+  const profile = useMemo(() => {
+    if (selectedDisease === "malaria") {
+      const pf = diseaseProfiles.malariaPF;
+      const pv = diseaseProfiles.malariaPV;
+
+      // Merge district data
+      const mergedDistricts = {};
+      [...pf.districtData, ...pv.districtData].forEach((d) => {
+        const key = d.district.toLowerCase();
+        if (mergedDistricts[key]) {
+          mergedDistricts[key].cases += d.cases;
+          mergedDistricts[key].previousWeekCases += (d.previousWeekCases || 0);
+        } else {
+          mergedDistricts[key] = { ...d };
+        }
+      });
+
+      // Merge climate correlation (avg weather, sum cases)
+      const mergedClimate = pf.climateCorrelation.map((d, i) => {
+        const pvData = pv.climateCorrelation[i] || {};
+        return {
+          ...d,
+          cases: d.cases + (pvData.cases || 0),
+          // Keep weather from PF as they are similar
+        };
+      });
+
+      return {
+        ...pf,
+        key: "malaria",
+        label: "Malaria",
+        totalCases: pf.totalCases + pv.totalCases,
+        districtData: Object.values(mergedDistricts),
+        climateCorrelation: mergedClimate,
+        peakCases: Math.max(pf.peakCases, pv.peakCases), // or sum, but max is safer for "peak" definition usually
+      };
+    }
+    return diseaseProfiles[selectedDisease];
+  }, [selectedDisease]);
+
   const climateData = profile.climateCorrelation;
 
   // Year Range Logic: Map 0-100 slider to 2019-2025
@@ -73,7 +117,7 @@ const ClimateImpactPage = () => {
           <Select value={selectedDisease} onValueChange={setSelectedDisease}>
             <SelectTrigger className="w-[320px]"><SelectValue /></SelectTrigger>
             <SelectContent position="popper">
-              {diseaseOptions.map((o) => (
+              {filteredDiseaseOptions.map((o) => (
                 <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
               ))}
             </SelectContent>
@@ -84,7 +128,7 @@ const ClimateImpactPage = () => {
           <Select value={selectedDistrict} onValueChange={setSelectedDistrict}>
             <SelectTrigger className="w-[320px]"><SelectValue /></SelectTrigger>
             <SelectContent position="popper">
-              <SelectItem value="all">All Districts</SelectItem>
+              {/* <SelectItem value="all">All Districts</SelectItem> */}
               {profile.districtData.map((d) => (
                 <SelectItem key={d.district} value={d.district}>{d.district}</SelectItem>
               ))}
@@ -151,22 +195,31 @@ const ClimateImpactPage = () => {
         <div className="lg:col-span-2 dashboard-section">
           <div className="flex items-start justify-between mb-2">
             <div>
-              <h3 className="text-lg font-semibold text-foreground">{profile.label} Cases vs Weather</h3>
+              <h3 className="space-grotesk-myfont text-xl font-semibold text-foreground">{profile.label} Cases vs Weather Variables</h3>
               <p className="text-sm text-muted-foreground">Correlation between cases and environmental factors</p>
             </div>
-            <div className="flex gap-1">
-              {["temp", "humidity", "rainfall", "all"].map((f) => (
-                <button
-                  key={f}
-                  onClick={() => setActiveFilter(f)}
-                  className={`px-3 py-1 text-xs rounded-full transition ${activeFilter === f
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-secondary text-muted-foreground hover:bg-accent"
-                    }`}
-                >
-                  {f === "temp" ? "🌡 Temp" : f === "humidity" ? "💧 Humidity" : f === "rainfall" ? "🌧 Rainfall" : "All"}
-                </button>
-              ))}
+            <div className="flex gap-2">
+              {[
+                { id: "temp", label: "Temp", icon: Thermometer, activeClass: "bg-orange-500 text-white" },
+                { id: "humidity", label: "Humidity", icon: Droplets, activeClass: "bg-blue-500 text-white" },
+                { id: "rainfall", label: "Rainfall", icon: CloudRain, activeClass: "bg-emerald-500 text-white" },
+                { id: "all", label: "All", icon: LayoutGrid, activeClass: "bg-primary text-primary-foreground" },
+              ].map((f) => {
+                const Icon = f.icon;
+                return (
+                  <button
+                    key={f.id}
+                    onClick={() => setActiveFilter(f.id)}
+                    className={`px-4 py-1 text-sm rounded-md transition flex items-center gap-2 ${activeFilter === f.id
+                      ? f.activeClass
+                      : "bg-secondary text-muted-foreground hover:bg-accent"
+                      }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {f.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
           <ResponsiveContainer width="100%" height={300}>
@@ -193,7 +246,7 @@ const ClimateImpactPage = () => {
 
         <div className="dashboard-section">
           <h3 className="text-lg font-semibold text-center text-foreground">Weather Impact</h3>
-          <p className="text-sm text-muted-foreground text-center mb-4">on Disease Outbreaks</p>
+          <p className="text-xs text-muted-foreground text-center mb-4">on Disease Outbreaks</p>
           <div className="space-y-4">
             {weatherImpacts.map((w) => {
               const Icon = w.icon;
@@ -203,12 +256,14 @@ const ClimateImpactPage = () => {
                     <Icon className="w-5 h-5" style={{ color: w.color }} />
                     <span className="font-semibold text-foreground">{w.title}</span>
                   </div>
-                  <div className="flex gap-2 mb-2">
-                    {w.diseases.map((d) => (
-                      <span key={d} className="text-xs px-2 py-0.5 rounded-full bg-gray-300 text-black font-bold">{d}</span>
-                    ))}
+                  <div className="ml-7">
+                    <div className="flex gap-2 mb-2">
+                      {w.diseases.map((d) => (
+                        <span key={d} className="text-xs px-2 py-0.5 rounded-full bg-gray-300 text-black font-bold">{d}</span>
+                      ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground">{w.description}</p>
                   </div>
-                  <p className="text-xs text-muted-foreground">{w.description}</p>
                 </div>
               );
             })}

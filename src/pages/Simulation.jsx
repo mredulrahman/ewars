@@ -3,11 +3,12 @@ import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Play, Pause, Syringe, ShieldCheck, Droplets, FlaskConical, Users, Info, RotateCcw } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { diseaseOptions, diseaseProfiles } from "../assets//data/diseaseData";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+import maplibregl from "maplibre-gl";
+import "maplibre-gl/dist/maplibre-gl.css";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+
 
 
 const interventions = [
@@ -20,10 +21,37 @@ const interventions = [
 
 const r0Ranges = {
   dengue: "1.5 - 3.0",
-  malariaPF: "1.0 - 2.5",
-  malariaPV: "1.0 - 2.5",
+  malaria: "1.0 - 2.5",
   diarrhoea: "2.0 - 4.0"
 };
+
+// MapLibre GL doesn't have a native circle in meters, so we approximate a polygon
+const createCirclePolygon = (center, radiusInMeters, points = 64) => {
+  const [lat, lng] = center;
+  const coords = [];
+  const km = radiusInMeters / 1000;
+  const ret = [];
+  const distanceX = km / (111.32 * Math.cos((lat * Math.PI) / 180));
+  const distanceY = km / 110.574;
+
+  for (let i = 0; i < points; i++) {
+    const theta = (i / points) * (2 * Math.PI);
+    const x = distanceX * Math.cos(theta);
+    const y = distanceY * Math.sin(theta);
+    coords.push([lng + x, lat + y]);
+  }
+  coords.push(coords[0]); // Close the polygon
+
+  return {
+    type: "Feature",
+    geometry: {
+      type: "Polygon",
+      coordinates: [coords],
+    },
+    properties: {},
+  };
+};
+
 
 const SimulationPage = () => {
   const [initialCases, setInitialCases] = useState([100]);
@@ -35,7 +63,7 @@ const SimulationPage = () => {
   const [isPaused, setIsPaused] = useState(false);
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
-  const circlesRef = useRef([]);
+  const ringsRef = useRef([]);
   const [showInfo, setShowInfo] = useState(false);
   const [running, setRunning] = useState(false);
   const toggleIntervention = (label) => {
@@ -44,33 +72,118 @@ const SimulationPage = () => {
     );
   };
 
-  const profile = diseaseProfiles[selectedDisease];
+  const filteredDiseaseOptions = useMemo(() => {
+    const base = diseaseOptions.filter(o => o.value !== "malariaPF" && o.value !== "malariaPV");
+    return [...base, { value: "malaria", label: "Malaria" }];
+  }, []);
+
+  const profile = useMemo(() => {
+    if (selectedDisease === "malaria") {
+      const pf = diseaseProfiles.malariaPF;
+      const pv = diseaseProfiles.malariaPV;
+
+      // Merge district data: just need it for the origin search etc.
+      const mergedDistricts = {};
+      [...pf.districtData, ...pv.districtData].forEach((d) => {
+        const key = d.district.toLowerCase();
+        if (mergedDistricts[key]) {
+          mergedDistricts[key].cases += d.cases;
+        } else {
+          mergedDistricts[key] = { ...d };
+        }
+      });
+
+      return {
+        ...pf,
+        key: "malaria",
+        label: "Malaria",
+        districtData: Object.values(mergedDistricts),
+      };
+    }
+    return diseaseProfiles[selectedDisease];
+  }, [selectedDisease]);
+
   const districtNames = profile.districtData.map((d) => d.district);
 
   // Initialize simulation map
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
-    const map = L.map(mapContainerRef.current, {
-      center: [23.7, 90.4],
-      zoom: 7,
-      zoomControl: true,
-      scrollWheelZoom: true,
-      attributionControl: true,
-      preferCanvas: true,
+    const map = new maplibregl.Map({
+      container: mapContainerRef.current,
+      style: {
+        version: 8,
+        sources: {
+          osm: {
+            type: "raster",
+            tiles: ["https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"],
+            tileSize: 256,
+            attribution: "&copy; OpenStreetMap Contributors",
+          },
+        },
+        layers: [
+          {
+            id: "osm-layer",
+            type: "raster",
+            source: "osm",
+          },
+        ],
+      },
+      center: [90.41, 23.7],
+      zoom: 6.5,
     });
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 
-    fetch("/data/bd_districts.geojson")
-      .then((r) => r.json())
-      .then((data) => {
-        L.geoJSON(data, {
-          style: { fillColor: "hsl(220,14%,96%)", weight: 1, color: "hsl(220,13%,80%)", fillOpacity: 0.5 },
-        }).addTo(map);
+    map.on("load", () => {
+      // Add GeoJSON source for districts
+      map.addSource("districts", {
+        type: "geojson",
+        data: "/data/bd_districts.geojson",
       });
+
+      // Simple district fill
+      map.addLayer({
+        id: "districts-fill",
+        type: "fill",
+        source: "districts",
+        paint: {
+          "fill-color": "hsl(220,14%,96%)",
+          "fill-opacity": 0.5,
+        },
+      });
+
+      // Simple district border
+      map.addLayer({
+        id: "districts-border",
+        type: "line",
+        source: "districts",
+        paint: {
+          "line-color": "hsl(220,13%,80%)",
+          "line-width": 1,
+        },
+      });
+
+      // Simulation source (empty initially)
+      map.addSource("simulation-rings", {
+        type: "geojson",
+        data: { type: "FeatureCollection", features: [] },
+      });
+
+      // Simulation rings layer
+      map.addLayer({
+        id: "simulation-rings-layer",
+        type: "fill",
+        source: "simulation-rings",
+        paint: {
+          "fill-color": "hsl(0,72%,51%)",
+          "fill-opacity": 0.1,
+          "fill-outline-color": "hsl(0,72%,51%)",
+        },
+      });
+    });
 
     mapRef.current = map;
     return () => { map.remove(); mapRef.current = null; };
   }, []);
+
 
   // Show simulation animation
   useEffect(() => {
@@ -89,15 +202,16 @@ const SimulationPage = () => {
 
         const nextWeek = prev + 1;
         // Add a new ring for each week
-        const circle = L.circle([origin.lat, origin.lng], {
-          radius: nextWeek * 25000,
-          color: "hsl(0,72%,51%)",
-          fillColor: "hsl(0,72%,51%)",
-          fillOpacity: 0.1,
-          weight: 1,
-        }).addTo(mapRef.current);
+        const newRing = createCirclePolygon([origin.lat, origin.lng], nextWeek * 25000);
+        ringsRef.current.push(newRing);
 
-        circlesRef.current.push(circle);
+        const source = mapRef.current.getSource("simulation-rings");
+        if (source) {
+          source.setData({
+            type: "FeatureCollection",
+            features: [...ringsRef.current],
+          });
+        }
         return nextWeek;
       });
     }, 1000);
@@ -105,17 +219,22 @@ const SimulationPage = () => {
     return () => clearInterval(interval);
   }, [running, isPaused, profile.districtData]);
 
+
   const handleStart = () => {
     if (currentWeek === 8) {
       // Reset
-      circlesRef.current.forEach(c => c.remove());
-      circlesRef.current = [];
+      ringsRef.current = [];
+      const source = mapRef.current?.getSource("simulation-rings");
+      if (source) {
+        source.setData({ type: "FeatureCollection", features: [] });
+      }
       setCurrentWeek(0);
     }
     setRunning(true);
     setIsPaused(false);
     setOriginDistrict("dhaka");
   };
+
 
   const handlePause = () => {
     setIsPaused(true);
@@ -129,8 +248,11 @@ const SimulationPage = () => {
     setRunning(false);
     setIsPaused(false);
     setCurrentWeek(0);
-    circlesRef.current.forEach(c => c.remove());
-    circlesRef.current = [];
+    ringsRef.current = [];
+    const source = mapRef.current?.getSource("simulation-rings");
+    if (source) {
+      source.setData({ type: "FeatureCollection", features: [] });
+    }
   };
 
   // Mock data for the progress popup
@@ -184,10 +306,10 @@ const SimulationPage = () => {
         <Dialog open={showInfo} onOpenChange={setShowInfo}>
           <DialogContent className="w-[400px]">
             <DialogHeader>
-              <DialogTitle className="text-[rgb(30,64,175)]">Simulation Controls</DialogTitle>
+              <DialogTitle className="text-black">Simulation Controls</DialogTitle>
               <DialogDescription>
-                <p className="text-sm inter-myfont1 py-1 text-[rgb(30,64,175)]">Model disease spread from an origin district and test intervention strategies.</p>
-                <p className="text-sm inter-myfont1 py-1 text-[rgb(30,64,175)]">Adjust parameters like initial cases and R₀, then activate interventions to see their impact on outbreak control.</p>
+                <p className="text-sm inter-myfont1 py-1 text-black">Model disease spread from an origin district and test intervention strategies.</p>
+                <p className="text-sm inter-myfont1 py-1 text-black">Adjust parameters like initial cases and R₀, then activate interventions to see their impact on outbreak control.</p>
               </DialogDescription>
             </DialogHeader>
           </DialogContent>
@@ -211,7 +333,7 @@ const SimulationPage = () => {
             <Select value={selectedDisease} onValueChange={setSelectedDisease}>
               <SelectTrigger className="w-[250px]"><SelectValue /></SelectTrigger>
               <SelectContent position="popper">
-                {diseaseOptions.map((o) => (
+                {filteredDiseaseOptions.map((o) => (
                   <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
                 ))}
               </SelectContent>

@@ -62,13 +62,13 @@ const HelpDeveloperGuide = ({ open, onOpenChange }) => {
             <TabsList className="grid w-full grid-cols-2 bg-gray-200 p-1 mb-6">
               <TabsTrigger
                 value="user-guide"
-                className="rounded-md data-[state=active]:bg-blue-500 data-[state=active]:text-white"
+                className="rounded-md data-[state=active]:bg-white data-[state=active]:text-black text-blue-800 hover:text-blue-800"
               >
                 User Guide
               </TabsTrigger>
               <TabsTrigger
                 value="developer-guide"
-                className="rounded-md data-[state=active]:bg-blue-500 data-[state=active]:text-white"
+                className="rounded-md data-[state=active]:bg-white data-[state=active]:text-black text-blue-800 hover:text-blue-800"
               >
                 Developer Guide
               </TabsTrigger>

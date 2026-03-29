@@ -59,8 +59,8 @@ function DatePickerWithRange({ date, setDate }) {
 
 const OverviewPage = () => {
   const [selectedDisease, setSelectedDisease] = useState("dengue");
-  const [selectedDivision, setSelectedDivision] = useState("all");
-  const [selectedDistrict, setSelectedDistrict] = useState("all");
+  const [selectedDivision, setSelectedDivision] = useState("Dhaka");
+  const [selectedDistrict, setSelectedDistrict] = useState("Dhaka");
   const [showInfo1, setShowInfo1] = useState(false);
   const [showInfo2, setShowInfo2] = useState(false);
   const [date, setDate] = useState({
@@ -190,7 +190,7 @@ const OverviewPage = () => {
   return (
     <div className="space-y-6 mx-10">
       {/* Filters */}
-      <div className="dashboard-section flex flex-wrap items-end gap-6">
+      <div className="dashboard-section bg-gray-50 flex flex-wrap items-end gap-6">
         <div className="space-y-1.5">
           <p className="text-sm font-medium text-foreground py-2">Disease</p>
           <Select value={selectedDisease} onValueChange={handleDiseaseChange}>
@@ -205,9 +205,9 @@ const OverviewPage = () => {
         <div className="space-y-1.5">
           <p className="text-sm font-medium text-foreground py-2">Location</p>
           <Select value={selectedDivision} onValueChange={handleDivisionChange}>
-            <SelectTrigger className="w-[250px]"><SelectValue placeholder="All Divisions" /></SelectTrigger>
+            <SelectTrigger className="w-[250px]"><SelectValue /></SelectTrigger>
             <SelectContent position="popper">
-              <SelectItem value="all">All Divisions</SelectItem>
+              {/* <SelectItem value="Dhaka"></SelectItem> */}
               {divisions.map((div) => (
                 <SelectItem key={div} value={div}>{div}</SelectItem>
               ))}
@@ -217,9 +217,9 @@ const OverviewPage = () => {
         <div className="space-y-1.5">
           {/* <label className="text-sm font-medium text-foreground">District</label> */}
           <Select value={selectedDistrict} onValueChange={setSelectedDistrict}>
-            <SelectTrigger className="w-[250px]"><SelectValue placeholder="All Districts" /></SelectTrigger>
+            <SelectTrigger className="w-[250px]"><SelectValue /></SelectTrigger>
             <SelectContent position="popper">
-              <SelectItem value="all">All Districts</SelectItem>
+              {/* <SelectItem value="all">All Districts</SelectItem> */}
               {districts.map((dist) => (
                 <SelectItem key={dist} value={dist}>{dist}</SelectItem>
               ))}
@@ -303,7 +303,7 @@ const OverviewPage = () => {
               <h2 className="text-lg font-bold text-foreground space-grotesk-myfont">
                 Predicted Cases & Uncertainty
               </h2>
-              <p className="text-sm text-muted-foreground mb-4">Historical trend with predicted values and uncertainty</p>
+              <p className="text-sm text-blue-800 mb-4">Historical trend with predicted values and uncertainty</p>
             </div>
             <div>
               <Info className="w-5 h-5" style={{ color: "hsl(220,10%,46%)" }} onClick={() => setShowInfo1(true)} />
@@ -312,10 +312,10 @@ const OverviewPage = () => {
             <Dialog open={showInfo1} onOpenChange={setShowInfo1}>
               <DialogContent className="w-[400px]">
                 <DialogHeader>
-                  <DialogTitle className="text-md text-[rgb(30,64,175)]">Predicted Cases & Uncertainty</DialogTitle>
+                  <DialogTitle className="text-md text-black">Predicted Cases & Uncertainty</DialogTitle>
                   <DialogDescription>
-                    <p className="text-sm inter-myfont1 text-[rgb(30,64,175)] py-1">Shows historical disease case trends with the latest AI-predicted value.</p>
-                    <p className="text-sm inter-myfont1 text-[rgb(30,64,175)] py-1">The trend line shows historical data with the predicted point highlighted in red at the end. Error bars indicate the prediction uncertainty range (low to high).</p>
+                    <p className="text-sm inter-myfont1 text-black py-1">Shows historical disease case trends with the latest AI-predicted value.</p>
+                    <p className="text-sm inter-myfont1 text-black py-1">The trend line shows historical data with the predicted point highlighted in red at the end. Error bars indicate the prediction uncertainty range (low to high).</p>
                   </DialogDescription>
                 </DialogHeader>
               </DialogContent>
@@ -349,7 +349,7 @@ const OverviewPage = () => {
               <h2 className="text-lg font-bold text-foreground space-grotesk-myfont">
                 Top Districts - Last Week Cases
               </h2>
-              <p className="text-sm text-muted-foreground mb-4">Districts with highest case counts from previous week</p>
+              <p className="text-sm text-blue-800 mb-4">Districts with highest case counts from previous week</p>
             </div>
             <div>
               <Info className="w-5 h-5" style={{ color: "hsl(220,10%,46%)" }} onClick={() => setShowInfo2(true)} />
@@ -357,10 +357,10 @@ const OverviewPage = () => {
             <Dialog open={showInfo2} onOpenChange={setShowInfo2}>
               <DialogContent className="w-[400px]">
                 <DialogHeader>
-                  <DialogTitle className="text-md text-[rgb(30,64,175)]">Top Districts</DialogTitle>
+                  <DialogTitle className="text-md text-black">Top Districts</DialogTitle>
                   <DialogDescription>
-                    <p className="text-sm inter-myfont1 text-[rgb(30,64,175)] py-1">Highlights districts with the most cases last week.</p>
-                    <p className="text-sm inter-myfont1 text-[rgb(30,64,175)] py-1">Color indicators show rising, declining, or stable trends compared to the week before.</p>
+                    <p className="text-sm inter-myfont1 text-black py-1">Highlights districts with the most cases last week.</p>
+                    <p className="text-sm inter-myfont1 text-black py-1">Color indicators show rising, declining, or stable trends compared to the week before.</p>
                   </DialogDescription>
                 </DialogHeader>
               </DialogContent>
@@ -387,14 +387,14 @@ const OverviewPage = () => {
                         {d.trend}
                       </span>
                       <p className="text-xs text-muted-foreground">Last Week</p>
-                      <p className="text-sm font-bold text-foreground">{d.lastWeek}</p>
+                      <p className="text-lg font-bold text-foreground">{d.lastWeek}</p>
                     </div>
                   </div>
                   <hr className="my-4" />
-                  <div className="flex justify-between mt-4 text-xs text-muted-foreground">
-                    <span>WoW Change:</span>
+                  <div className="flex justify-between mt-4 text-muted-foreground">
+                    <span className="text-xs">WoW Change:</span>
                     <span
-                      className={d.change > 0 ? "trend-rising" : d.change < 0 ? "trend-declining" : "trend-stable"}
+                      className={`flex items-center gap-1 font-bold text-md ${d.change > 0 ? "trend-rising" : d.change < 0 ? "trend-declining" : "trend-stable"}`}
                     >
                       {d.change > 0 ? <TrendingUp className="w-4 h-4" /> : d.change < 0 ? <TrendingDown className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />} {Math.abs(d.change)}%
                     </span>
@@ -424,7 +424,7 @@ const StatCard = ({ className, icon, label, value, sub, extraLabel, change, erro
         <div className="grid sm:grid-cols-2 gap-2 items-center">
           <p className="text-2xl font-bold text-foreground">{value}</p>
           {change !== undefined && (
-            <span className={`text-xs font-medium ${change > 0 ? "trend-rising" : change < 0 ? "trend-declining" : "trend-stable"}`}>
+            <span className={`flex items-center gap-1 text-xs font-medium ${change > 0 ? "trend-rising" : change < 0 ? "trend-declining" : "trend-stable"}`}>
               {change > 0 ? <TrendingUp /> : change < 0 ? <TrendingDown /> : <ArrowRight />} {Math.abs(change)}%
             </span>
           )}

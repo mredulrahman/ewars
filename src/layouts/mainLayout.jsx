@@ -24,7 +24,7 @@ const DashboardLayout = ({ activeTab, onTabChange, onDownload, isDownloading, ch
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const navigate = useNavigate();
   const handleLogout = () => {
-    navigate('/login');
+    navigate('/');
   };
   return (
     <div className="min-h-screen bg-background">
@@ -32,27 +32,27 @@ const DashboardLayout = ({ activeTab, onTabChange, onDownload, isDownloading, ch
 
       {/* Header */}
       <header className="bg-card top-0 z-50">
-        <div className="flex items-center justify-between border-b bg-blue-800 border-border px-6 py-4">
+        <div className="flex items-center justify-between border-b border-border px-16 py-4">
           <div />
-          <h1 className="space-grotesk-myfont text-xl font-bold tracking-tight text-white">EWARS Bangladesh</h1>
+          <h1 className="space-grotesk-myfont text-2xl font-bold tracking-tight text-black">EWARS Bangladesh</h1>
           <div className="flex items-center gap-2">
             <button
               onClick={onDownload}
               disabled={isDownloading}
-              className={`p-2 rounded-full bg-gray-200 text-black hover:opacity-90 transition flex items-center justify-center ${isDownloading ? "cursor-not-allowed opacity-70" : ""}`}
+              className={`p-2 rounded-md bg-black text-white hover:opacity-90 transition flex items-center justify-center ${isDownloading ? "cursor-not-allowed opacity-70" : ""}`}
             >
               {isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
             </button>
             <button
               onClick={() => setIsGuideOpen(true)}
-              className="p-2 rounded-full bg-gray-200 text-black hover:opacity-90 transition"
+              className="p-2 hover:bg-amber-500 text-black hover:opacity-90 transition"
             >
               <HelpCircle className="w-4 h-4" />
             </button>
             <Popover>
               <PopoverTrigger asChild>
-                <button className="p-2 rounded-full bg-blue-900 transition">
-                  <User className="w-4 h-4 text-white" />
+                <button className="p-2 rounded-full bg-gray-200 transition">
+                  <User className="w-4 h-4 text-black" />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-45 p-2 rounded-lg bg-card border-border shadow-md" align="end" sideOffset={8}>
@@ -63,11 +63,11 @@ const DashboardLayout = ({ activeTab, onTabChange, onDownload, isDownloading, ch
                   </div>
                 </div>
                 <Separator className="my-2" />
-                <button className="w-full flex items-center gap-3 rounded-md px-2 py-2 text-[15px] hover:bg-blue-500 transition-colors hover:text-white">
+                <button className="w-full flex items-center gap-3 rounded-md px-2 py-2 text-[15px] hover:bg-amber-500 transition-colors hover:text-black">
                   <Settings className="w-4 h-4" />
                   <span>Settings</span>
                 </button>
-                <button onClick={handleLogout} className="w-full flex items-center gap-3 rounded-md px-2 py-2 text-[15px] hover:bg-blue-500 transition-colors hover:text-white">
+                <button onClick={handleLogout} className="w-full flex items-center gap-3 rounded-md px-2 py-2 text-[15px] hover:bg-amber-500 transition-colors hover:text-black">
                   <LogOut className="w-4 h-4" />
                   <span>Logout</span>
                 </button>
@@ -77,7 +77,7 @@ const DashboardLayout = ({ activeTab, onTabChange, onDownload, isDownloading, ch
         </div>
 
         {/* Tab Navigation */}
-        <nav className="flex items-center justify-center gap-1 py-5 px-4 flex-wrap">
+        <nav className="flex items-center justify-center gap-3 py-5 px-4 flex-wrap">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -85,8 +85,8 @@ const DashboardLayout = ({ activeTab, onTabChange, onDownload, isDownloading, ch
               <button
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full border-solid border-1 text-sm font-medium transition-all ${isActive
-                  ? "bg-blue-500 text-primary-foreground shadow-sm"
+                className={`flex items-center gap-2 px-4 py-2 rounded-md border-solid border-1 text-sm font-medium transition-all ${isActive
+                  ? "bg-black text-primary-foreground shadow-sm"
                   : "hover:bg-secondary hover:text-foreground"
                   }`}>
                 <Icon className="w-4 h-4" />

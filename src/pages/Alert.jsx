@@ -106,7 +106,26 @@ const AlertPage = () => {
     }
   };
 
-  const emailBody = `Subject: URGENT - Disease Alert for ${alertDistrictsCount} Districts\n\nDear Health Officials,\n\nThis is an automated alert from the Bangladesh Early Warning Alert and Response System (EWARS).\n\n⚠ ALERT: ${alertDistrictsCount} districts have exceeded baseline (${getBaselineLabel()}: ${baselineValue}) for ${profile.label}.\n\nDistricts on Alert:\n${profile.districtData.filter(d => d.cases > (baselineValue / profile.totalDistricts) * 1.5).slice(0, 4).map((d) => `• ${d.district}: ${d.cases} cases`).join("\n")}`;
+  const emailBody = `Subject: URGENT - Disease Alert for ${alertDistrictsCount} Districts
+                    \n\nDear Health Officials,
+                    \n\nThis is an automated alert from the Bangladesh Early Warning Alert and Response System (EWARS).
+                    \n\n⚠️ ALERT: ${alertDistrictsCount} districts have exceeded baseline thresholds for ${profile.label}.
+                    \n\nDistricts on Alert:
+                    \n${profile.districtData.filter(d => d.cases > (baselineValue / profile.totalDistricts) * 1.5).slice(0, 4).map((d) => `• ${d.district}: ${d.cases} cases`).join("\n")}
+                    \n\nAnalysis Parameters:
+                    • Disease: ${profile.label}
+                    • Baseline Method: ${getBaselineLabel()}
+                    • Latest Data Date: ${profile.latestDataWeek}
+                    • Total Districts Monitored: ${profile.totalDistricts}
+                    \n\nRecommended Actions:
+                    1. Verify case counts with local health facilities
+                    2. Assess resource needs in affected districts
+                    3. Initiate enhanced surveillance protocols
+                    4. Consider public health interventions as needed
+                    \n\nPlease take immediate action to investigate and respond to this alert.
+                    \n\n---
+                    \nThis is an automated message from Bangladesh EWARS
+                    \nFor questions, contact: bangladesh-ewars@email.com`;
 
   return (
     <div className="space-y-6 mx-10">
@@ -117,7 +136,7 @@ const AlertPage = () => {
           <p className="text-[#3C5DAA] inter-myfont1">Monitor disease alerts based on baseline thresholds</p>
         </div>
         <div className="flex flex-col items-end gap-2">
-          <span className="text-xs px-3 py-1 rounded-full border border-danger bg-blue-100 text-blue-900 font-medium">
+          <span className="text-sm px-3 py-1 rounded-sm border border-danger bg-blue-100 text-blue-900 font-medium">
             Latest Data: {profile.latestDataWeek}
           </span>
           <Button onClick={() => setShowEmail(true)} className="gap-2 bg-blue-600 text-white hover:bg-blue-700">
@@ -256,10 +275,10 @@ const AlertPage = () => {
         <Dialog open={showInfo1} onOpenChange={setShowInfo1}>
           <DialogContent className="w-[400px]">
             <DialogHeader>
-              <DialogTitle className="text-md text-[rgb(30,64,175)]">National Cases vs Baseline</DialogTitle>
+              <DialogTitle className="text-md text-black">National Cases vs Baseline</DialogTitle>
               <DialogDescription>
-                <p className="text-sm inter-myfont1 text-[rgb(30,64,175)] py-1">Compares actual weekly cases to the historical baseline threshold.</p>
-                <p className="text-sm inter-myfont1 text-[rgb(30,64,175)] py-1">When the blue line exceeds the dashed baseline, it signals an outbreak requiring immediate attention.</p>
+                <p className="text-sm inter-myfont1 text-black py-1">Compares actual weekly cases to the historical baseline threshold.</p>
+                <p className="text-sm inter-myfont1 text-black py-1">When the blue line exceeds the dashed baseline, it signals an outbreak requiring immediate attention.</p>
               </DialogDescription>
             </DialogHeader>
           </DialogContent>
@@ -269,7 +288,7 @@ const AlertPage = () => {
         <div className="lg:col-span-2 flex flex-row dashboard-section">
           <div className="w-full">
             <h3 className="text-lg font-semibold text-foreground">Cases by District</h3>
-            <p className="text-sm text-muted-foreground my-2">Top 10 districts by case count</p>
+            <p className="text-sm text-blue-800 my-2">Top 10 districts by case count</p>
             <ResponsiveContainer width="100%" height={280}>
               <PieChart>
                 <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label={({ name, value }) => `${name} ${value}%`}>
@@ -286,10 +305,10 @@ const AlertPage = () => {
         <Dialog open={showInfo2} onOpenChange={setShowInfo2}>
           <DialogContent className="w-[400px]">
             <DialogHeader>
-              <DialogTitle className="text-md text-[rgb(30,64,175)]">Cases by District</DialogTitle>
+              <DialogTitle className="text-md text-black">Cases by District</DialogTitle>
               <DialogDescription>
-                <p className="text-sm inter-myfont1 text-[rgb(30,64,175)] py-1">Shows the top 10 districts with the highest case counts.</p>
-                <p className="text-sm inter-myfont1 text-[rgb(30,64,175)] py-1">Each slice represents a district's share of total cases, helping identify hotspots.</p>
+                <p className="text-sm inter-myfont1 text-black py-1">Shows the top 10 districts with the highest case counts.</p>
+                <p className="text-sm inter-myfont1 text-black py-1">Each slice represents a district's share of total cases, helping identify hotspots.</p>
               </DialogDescription>
             </DialogHeader>
           </DialogContent>
@@ -298,26 +317,28 @@ const AlertPage = () => {
         <Dialog open={showEmail} onOpenChange={setShowEmail}>
           <DialogContent className="max-w-lg">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2"><Mail className="w-5 h-5" /> Send Alert Notification</DialogTitle>
+              <DialogTitle className="flex items-center gap-2"><Mail className="w-5 h-5 text-blue-800" /> Send Alert Notification</DialogTitle>
             </DialogHeader>
-            <p className="text-sm text-muted-foreground">Email health officials about districts currently at risk</p>
+            <p className="text-sm text-blue-800">Email health officials about districts currently at risk</p>
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div className="space-y-1">
                 <label className="text-sm font-medium">From</label>
-                <Input defaultValue="ewars.bangladesh@gmail.com" readOnly className="bg-muted" />
+                <div className="cursor-not-allowed">
+                  <Input defaultValue="ewars.bangladesh@gmail.com" disabled />
+                </div>
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium">To <span className="text-danger">*</span></label>
+                <label className="text-sm font-medium">To <span className="text-red-500">*</span></label>
                 <Input placeholder="recipient@health.gov.bd" />
               </div>
             </div>
             <div className="space-y-1 mt-2">
               <label className="text-sm font-medium">Message</label>
-              <Textarea rows={8} defaultValue={emailBody} className="h-[200px]" />
+              <Textarea rows={8} defaultValue={emailBody} className="h-[200px] font-mono" />
             </div>
             <div className="flex items-center justify-between mt-4">
               <p className="text-xs text-orange-500 font-medium">⚠️ {alertDistrictsCount} districts currently at risk</p>
-              <Button className="gap-2"><Send className="w-4 h-4" /> Send Alert</Button>
+              <Button className="gap-2 bg-blue-800 hover:bg-blue-700 text-white"><Send className="w-4 h-4" /> Send Alert</Button>
             </div>
           </DialogContent>
         </Dialog>

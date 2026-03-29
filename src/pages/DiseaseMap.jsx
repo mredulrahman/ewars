@@ -399,10 +399,10 @@ const DiseaseMapPage = () => {
         <Dialog open={showInfo} onOpenChange={setShowInfo}>
           <DialogContent className="w-[400px]">
             <DialogHeader>
-              <DialogTitle className="text-md text-[rgb(30,64,175)]">Predicted Cases Heatmap</DialogTitle>
+              <DialogTitle className="text-md text-black">Predicted Cases Heatmap</DialogTitle>
               <DialogDescription>
-                <p className="text-sm inter-myfont1 text-[rgb(30,64,175)] py-1">Shows AI-predicted disease cases across all districts.</p>
-                <p className="text-sm inter-myfont1 text-[rgb(30,64,175)] py-1">Darker colors indicate higher predicted case counts. Use this to identify high-risk areas.</p>
+                <p className="text-sm inter-myfont1 text-black py-1">Shows AI-predicted disease cases across all districts.</p>
+                <p className="text-sm inter-myfont1 text-black py-1">Darker colors indicate higher predicted case counts. Use this to identify high-risk areas.</p>
               </DialogDescription>
             </DialogHeader>
           </DialogContent>

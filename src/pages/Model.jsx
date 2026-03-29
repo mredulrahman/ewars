@@ -29,14 +29,14 @@ const ClimateFactorCard = ({ factor, expanded, onToggle }) => {
 
   return (
     <div className="rounded-xl border bg-card p-5 shadow-sm transition-all hover:shadow-md">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-0.5">
         <div className="flex items-center gap-4">
           <div className={`w-10 h-10 rounded-lg ${bgClass} flex items-center justify-center`}>
             {getIcon()}
           </div>
           <div className="flex items-center gap-2">
             <span className="font-semibold text-sm text-foreground">{factor.name}</span>
-            <Badge variant="secondary" className="bg-gray-200 text-muted-foreground font-normal text-[8px] py-0 px-2 rounded-md">
+            <Badge variant="secondary" className="bg-gray-200 text-muted-foreground font-normal text-[10px] py-0 px-3 rounded-md">
               {factor.lag}
             </Badge>
           </div>
@@ -56,27 +56,28 @@ const ClimateFactorCard = ({ factor, expanded, onToggle }) => {
           )}
         </button>
       </div>
-
-      <div className="flex items-center gap-4">
-        <div className="flex-1 h-6 bg-secondary rounded-full overflow-hidden">
-          <div
-            className={`h-full ${barColor} rounded-full transition-all duration-500`}
-            style={{ width: `${Math.abs(factor.value) * 600}%` }}
-          />
+      <div className="ml-12">
+        <div className="flex items-center gap-4">
+          <div className="flex-1 h-6 bg-secondary rounded-full overflow-hidden">
+            <div
+              className={`h-full ${barColor} rounded-full transition-all duration-500`}
+              style={{ width: `${Math.abs(factor.value) * 600}%` }}
+            />
+          </div>
+          <span className={`font-mono font-bold text-lg min-w-[50px] text-right ${colorClass}`}>
+            {isPositive ? "+" : ""}{factor.value.toFixed(2)}
+          </span>
         </div>
-        <span className={`font-mono font-bold text-lg min-w-[50px] text-right ${colorClass}`}>
-          {isPositive ? "+" : ""}{factor.value.toFixed(2)}
-        </span>
+
+        {expanded && (
+          <div className={`mt-6 border-l-4 ${isPositive ? "border-blue-500 bg-blue-50/30" : "border-orange-500 bg-orange-50/30"} p-4 rounded-lg`}>
+            <p className={`text-xs font-semibold ${isPositive ? "text-blue-800" : "text-blue-800"} mb-1`}>Why this matters:</p>
+            <p className="text-sm text-foreground leading-relaxed">
+              {descriptions[factor.name] || `Information about how ${factor.name.toLowerCase()} impacts disease patterns.`}
+            </p>
+          </div>
+        )}
       </div>
-
-      {expanded && (
-        <div className={`mt-6 border-l-4 ${isPositive ? "border-blue-500 bg-blue-50/30" : "border-orange-500 bg-orange-50/30"} p-4 rounded-lg`}>
-          <p className={`text-sm font-semibold ${isPositive ? "text-blue-600" : "text-orange-600"} mb-1`}>Why this matters:</p>
-          <p className="text-sm text-foreground leading-relaxed">
-            {descriptions[factor.name] || `Information about how ${factor.name.toLowerCase()} impacts disease patterns.`}
-          </p>
-        </div>
-      )}
     </div>
   );
 };
@@ -118,16 +119,16 @@ const ModelPage = () => {
       <Dialog open={showInfo} onOpenChange={setShowInfo}>
         <DialogContent className="w-[400px]">
           <DialogHeader>
-            <DialogTitle className="text-lg text-[rgb(30,64,175)]">Refresh Model</DialogTitle>
+            <DialogTitle className="text-lg text-black">Refresh Model</DialogTitle>
             <DialogDescription>
-              <p className="text-sm inter-myfont1 text-[rgb(30,64,175)] py-1">This feature will update the model output with the latest predictions and recalculate performance metrics based on recent data. Currently under maintenance.</p>
+              <p className="text-sm inter-myfont1 text-black py-1">This feature will update the model output with the latest predictions and recalculate performance metrics based on recent data. Currently under maintenance.</p>
             </DialogDescription>
           </DialogHeader>
         </DialogContent>
       </Dialog>
       {/* Performance Cards */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="stat-card bg-[#AED1FF] border-border">
+        <div className="stat-card bg-[rgb(239,246,255)] border-border">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-foreground">R² Score</span>
             <Target className="w-5 h-5 text-blue-600" />
@@ -135,7 +136,7 @@ const ModelPage = () => {
           <p className="text-3xl font-bold text-foreground">{metrics.r2}%</p>
           <p className="text-xs text-muted-foreground">Model explains variance well</p>
         </div>
-        <div className="stat-card bg-[#a6f3bdcc] border-border">
+        <div className="stat-card bg-[rgb(240,253,244)] border-border">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-foreground">SMAPE</span>
             <TrendingUp className="w-5 h-5 text-green-600" />
@@ -143,7 +144,7 @@ const ModelPage = () => {
           <p className="text-3xl font-bold text-foreground">{metrics.smape}%</p>
           <p className="text-xs text-muted-foreground">Average prediction error</p>
         </div>
-        <div className="stat-card bg-[#DCB9EE] border-border">
+        <div className="stat-card bg-[rgb(250,245,255)] border-border">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-foreground">Coverage 90%</span>
             <CheckCircle className="w-5 h-5 text-purple-600" />
@@ -151,7 +152,7 @@ const ModelPage = () => {
           <p className="text-3xl font-bold text-foreground">{metrics.coverage90}%</p>
           <p className="text-xs text-muted-foreground">Predictions within range</p>
         </div>
-        <div className="stat-card bg-[#F8DABC] border-border">
+        <div className="stat-card bg-[rgb(255,251,235)] border-border">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-foreground">Prediction Window</span>
             <Clock className="w-5 h-5 text-orange-600" />
@@ -164,7 +165,7 @@ const ModelPage = () => {
       {/* Climate Influence */}
       <div className="dashboard-section">
         <h3 className="text-xl font-semibold text-foreground space-grotesk-myfont">Climate Influence on disease</h3>
-        <p className="text-sm text-muted-foreground mb-4">How climate factors affect disease outbreak patterns</p>
+        <p className="text-sm text-blue-800 mb-4">How climate factors affect disease outbreak patterns</p>
 
         <div className="stat-card stat-card-info mb-6">
           <p className="text-sm text-[rgb(60,93,170)]">
@@ -174,11 +175,11 @@ const ModelPage = () => {
             The magnitude represents the strength of the correlation.
           </p>
           <div className="flex gap-6 mt-2 text-xs">
-            <span className="flex items-center gap-2 font-semibold">
+            <span className="flex items-center gap-2 font-semibold text-blue-800">
               <div className="h-3 w-8 rounded bg-blue-500"></div>
               Positive Impact: Increases disease outbreak probability
             </span>
-            <span className="flex items-center gap-2 font-semibold">
+            <span className="flex items-center gap-2 font-semibold text-blue-800">
               <div className="h-3 w-8 rounded bg-orange-500"></div>
               Negative Impact: Decreases disease outbreak probability
             </span>
