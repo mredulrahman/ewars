@@ -34,24 +34,24 @@ const DashboardLayout = ({ activeTab, onTabChange, onDownload, isDownloading, ch
       <header className="bg-card top-0 z-50">
         <div className="flex items-center justify-between border-b border-border px-16 py-4">
           <div />
-          <h1 className="space-grotesk-myfont text-2xl font-bold tracking-tight text-black">EWARS Bangladesh</h1>
-          <div className="flex items-center gap-2">
+          <h1 className="space-grotesk-myfont text-2xl font-bold text-center tracking-tight text-black">EWARS Bangladesh</h1>
+          <div className="flex items-center gap-4">
             <button
               onClick={onDownload}
               disabled={isDownloading}
-              className={`p-2 rounded-md bg-black text-white hover:opacity-90 transition flex items-center justify-center ${isDownloading ? "cursor-not-allowed opacity-70" : ""}`}
+              className={`p-3 rounded-md bg-black text-white hover:opacity-90 transition flex items-center justify-center ${isDownloading ? "cursor-not-allowed opacity-70" : ""}`}
             >
               {isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
             </button>
             <button
               onClick={() => setIsGuideOpen(true)}
-              className="p-2 hover:bg-amber-500 text-black hover:opacity-90 transition"
+              className="p-3 hover:bg-amber-500 text-black hover:opacity-90 transition"
             >
               <HelpCircle className="w-4 h-4" />
             </button>
             <Popover>
               <PopoverTrigger asChild>
-                <button className="p-2 rounded-full bg-gray-200 transition">
+                <button className="p-3 rounded-full bg-gray-200 transition">
                   <User className="w-4 h-4 text-black" />
                 </button>
               </PopoverTrigger>

@@ -169,11 +169,11 @@ const AlertPage = () => {
       <div className="stat-card-info stat-card flex items-center gap-2">
         <Info className="w-4 h-4 text-info" />
         {selectedMethod === "p95" ? (
-          <span className="text-sm text-foreground"><strong>Baseline: P95</strong> — 95th percentile of historical cases for the week</span>
+          <span className="text-sm text-blue-800"><strong>Baseline: P95</strong> — 95th percentile of historical cases for the week</span>
         ) : selectedMethod === "mean2sd" ? (
-          <span className="text-sm text-foreground"><strong>Baseline: MEAN2SD</strong> — Mean + 2 standard deviations from historical data</span>
+          <span className="text-sm text-blue-800"><strong>Baseline: MEAN2SD</strong> — Mean + 2 standard deviations from historical data</span>
         ) : (
-          <span className="text-sm text-foreground"><strong>Baseline: ENDEMIC</strong> — Median + 2 × IQR (robust statistical measure)</span>
+          <span className="text-sm text-blue-800"><strong>Baseline: ENDEMIC</strong> — Median + 2 × IQR (robust statistical measure)</span>
         )}
       </div>
 
@@ -226,26 +226,47 @@ const AlertPage = () => {
         </div>
         <div className="stat-card border-border">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-sm text-[#3C5DAA] font-medium">Alert Distribution</span>
+            <span className="text-sm text-[#3C5DAA] font-medium inter-myfont1">Alert Distribution</span>
             <div className="bg-fuchsia-100 p-2 rounded-lg">
-              <ChartNoAxesColumnIncreasing className="w-4 h-4 text-fuchsia-600" />
+              <ChartNoAxesColumnIncreasing className="w-5 h-5 text-fuchsia-600" />
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="w-16 h-16">
+          <div className="flex flex-col justify-center items-center">
+            <div className="w-full h-32 -mt-10">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={[{ v: parseFloat(alertPct) }, { v: 100 - parseFloat(alertPct) }]} dataKey="v" innerRadius={18} outerRadius={28} strokeWidth={0}>
-                    <Cell fill="hsl(var(--danger))" />
-                    <Cell fill="hsl(var(--border))" />
+                  <Pie
+                    cx="50%"
+                    cy="85%"
+                    innerRadius="75%"
+                    outerRadius="105%"
+                    startAngle={180}
+                    endAngle={0}
+                    data={[{ v: parseFloat(alertPct) }, { v: 100 - parseFloat(alertPct) }]}
+                    dataKey="v"
+                    strokeWidth={0}
+                    cornerRadius={0}
+                  >
+                    <Cell fill="#22c55e" />
+                    <Cell fill="#e5e7eb" />
                   </Pie>
+                  <text
+                    x="50%"
+                    y="70%"
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    className="text-sm font-bold text-[#22c55e] inter-myfont1"
+                  >
+                    {alertPct}%
+                  </text>
                 </PieChart>
               </ResponsiveContainer>
             </div>
-            <div>
-              <p className="text-xl font-bold text-danger">{alertPct}%</p>
-              <hr className="my-2" />
-              <p className="text-xs text-muted-foreground">{alertDistrictsCount} of {profile.totalDistricts} on alert</p>
+            <div className="w-full">
+              <hr className="my-1 border-border/60" />
+              <p className="text-xs text-center inter-myfont1 text-[#3C5DAA]">
+                <span className="font-bold text-foreground">{alertDistrictsCount}</span> of <span className="font-bold text-foreground">{profile.totalDistricts}</span> on alert
+              </p>
             </div>
           </div>
         </div>
