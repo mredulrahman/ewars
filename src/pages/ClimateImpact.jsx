@@ -4,6 +4,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { useState, useMemo } from "react";
 import { Slider } from "@/components/ui/slider";
 import { diseaseProfiles, diseaseOptions } from "../assets/data/diseaseData";
+import { format, addDays } from "date-fns";
 
 const weatherImpacts = [
   {
@@ -225,7 +226,20 @@ const ClimateImpactPage = () => {
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={climateData}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(220,13%,91%)" />
-              <XAxis dataKey="week" tick={{ fontSize: 10 }} stroke="hsl(220,10%,46%)" />
+              <XAxis
+                dataKey="week"
+                tick={{ fontSize: 10, angle: -35, textAnchor: 'end' }}
+                tickFormatter={(weekStr) => {
+                  const match = weekStr?.match(/Week (\d+), (\d+)/);
+                  if (match) {
+                    const date = addDays(new Date(match[2], 0, 1), (parseInt(match[1]) - 1) * 7);
+                    return format(date, "dd MMM yy");
+                  }
+                  return weekStr;
+                }}
+                height={60}
+                stroke="hsl(220,10%,46%)"
+              />
               <YAxis yAxisId="left" tick={{ fontSize: 10 }} stroke="hsl(220,10%,46%)" />
               <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10 }} stroke="hsl(220,10%,46%)" />
               <Tooltip />

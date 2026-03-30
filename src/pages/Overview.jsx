@@ -329,7 +329,20 @@ const OverviewPage = () => {
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={profile.weeklyTrend}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(220,13%,91%)" />
-                <XAxis dataKey="week" tick={{ fontSize: 12 }} stroke="hsl(220,10%,46%)" />
+                <XAxis
+                  dataKey="week"
+                  tick={{ fontSize: 10, angle: -35, textAnchor: 'end' }}
+                  tickFormatter={(weekStr) => {
+                    const match = weekStr?.match(/Week (\d+), (\d+)/);
+                    if (match) {
+                      const date = addDays(new Date(match[2], 0, 1), (parseInt(match[1]) - 1) * 7);
+                      return format(date, "dd MMM yy");
+                    }
+                    return weekStr;
+                  }}
+                  height={60}
+                  stroke="hsl(220,10%,46%)"
+                />
                 <YAxis tick={{ fontSize: 12 }} stroke="hsl(220,10%,46%)" />
                 <Tooltip />
                 <Legend />

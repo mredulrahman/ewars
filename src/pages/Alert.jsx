@@ -265,7 +265,7 @@ const AlertPage = () => {
             <div className="w-full">
               <hr className="my-1 border-border/60" />
               <p className="text-xs text-center inter-myfont1 text-[#3C5DAA]">
-                <span className="font-bold text-foreground">{alertDistrictsCount}</span> of <span className="font-bold text-foreground">{profile.totalDistricts}</span> on alert
+                <span className="font-semibold text-foreground">{alertDistrictsCount}</span> of <span className="font-semibold text-foreground">{profile.totalDistricts}</span> on alert
               </p>
             </div>
           </div>
